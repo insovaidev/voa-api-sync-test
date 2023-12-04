@@ -250,12 +250,6 @@ module.exports = function(app) {
     // Add/Update checklists to Central
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
-        
-        console.log('body from sub server', body)
-        
-        return
-
-
         if(body != null && body.data){
             try {
                 for( i in body.data){
