@@ -22,37 +22,35 @@ const deletedVisasSyncModel = require('../models/deletedVisasSyncModel');
 
 module.exports = function(app) {
 
-    // SUB SERVER CALL
-    app.post('/syncs/users_from_central', async (req, res, next) => {      
-        var sync_logs = {}
-        if(result = await fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
-        var sid = sync_logs.users != undefined ? sync_logs.users : 0
-        
-        try {    
-            const request = await axios.post(config.centralUrl+'syncs/users_to_sub', {'sid': parseInt(sid)})
-            if(request && request.data != null && request.data.data) {
-                    for(var i in request.data.data) {
-                        var val = request.data.data[i]
-                        // check record
-                        if(sid<=val.sid) sid = val.sid
-                        delete val.sid
-                        const user = await userModel.get({select: '*', filters: {'uid': val.uid}})
-                        if(user) {
-                            await userModel.updateSync(request.data.data[i])
-                        } else {
-                            await userModel.addSync(request.data.data[i])
-                        }
+    // Add or Update user to Local 
+    app.post('/syncs/users_from_central', async (req, res, next) => { 
+        const body = req.body
+        let sid = 0
+        try {
+            if(body.data && body.data.length){
+                for(var i in body.data) {
+                    var val = body.data[i]
+                    console.log(val.sid)
+                    // check record
+                    if(sid<=val.sid) sid = val.sid
+                    delete val.sid
+                    const user = await userModel.get({select: '*', filters: {'uid': val.uid}})
+                    if(user) {
+                        await userModel.updateSync(body.data[i])
+                    } else {
+                        await userModel.addSync(body.data[i])
                     }
                 }
-                sync_logs.users = sid
-                fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
-                res.send({'id': sid })
+                return res.send({'sid': sid})
+            }
         } catch (error) {
+            console.log(error)
             next()
-            // res.status(201).send({'message': 'CONFUSE SERVER'})
         }
     })
-    // CENTRAL
+
+
+    // Get new users data updated from Central
     app.post('/syncs/users_to_sub', async (req, res) => {
         var data = []
         if(req.body.sid != undefined && req.body.port!= undefined) {
@@ -106,7 +104,7 @@ module.exports = function(app) {
     })
 
 
-    // CENTRAL
+    // Get new Ports data updated from Central
     app.post('/syncs/ports_to_sub', async (req, res) => {
         var data = []
         if(req.body.sid != undefined) {
@@ -115,7 +113,7 @@ module.exports = function(app) {
         }
         res.send({'data': data && data.length ? data : null})
     })
-    // SUB SERVER CALL
+    // Add / Update Ports to Local
     app.post('/syncs/ports_from_central', async (req, res, next) => {
         var sync_logs = {}
         let request = null;
