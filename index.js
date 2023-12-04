@@ -4,9 +4,6 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 require('dotenv').config()
-const cron = require('node-cron');
-const axios = require('axios')
-
 
 // Allow close domain
 app.use(cors())
@@ -28,11 +25,6 @@ app.use('/uploads', express.static('uploads'))
 
 // Configuration
 const config = require('./app/config/config')
-
-// Testing code 
-// cron.schedule('*/10 * * * * *', () => {
-//   axios.get(`${process.env.CRON_URL}`)
-// });
 
 // Routes
 require('./app/config/routes')(app)

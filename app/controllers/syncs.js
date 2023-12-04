@@ -140,7 +140,7 @@ module.exports = function(app) {
     })
 
 
-    // CENTRAL
+    // Get new Visa Types data updated from Central
     app.post('/syncs/visa_types_to_sub', async (req, res) => {
         var data = []
         if(req.body.sid != undefined) {
@@ -149,16 +149,11 @@ module.exports = function(app) {
         }
         res.send({'data': data && data.length ? data : null})
     })
-    // SUB SERVER CALL
+    // Add or Update Visa Types to Local
     app.post('/syncs/visa_types_from_central', async (req, res, next) => {
-        // var sync_logs = {}
-        // var request = null
-        // if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
-        // var sid = sync_logs.visa_types != undefined ? sync_logs.visa_types : 0 
         const body = req.body
         let sid = 0
         try {
-            // request = await axios.post(config.centralUrl+'syncs/visa_types_to_sub', {'sid': parseInt(sid)})    
             if(body.data && body.data.length){
                 for(var i in body.data) {
                     var val = body.data[i]
@@ -173,10 +168,7 @@ module.exports = function(app) {
                     }
                 }
             }
-            // sync_logs.visa_types = sid
-            // fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
-            res.send({'id':sid})
-                
+            res.send({'id':sid})  
         } catch (error) {
             next() 
         }
@@ -219,7 +211,7 @@ module.exports = function(app) {
     })
 
 
-    // CENTRAL
+    // Get new activity from Local
     app.post('/syncs/activity_logs_from_sub', async (req, res) => {
         const body = req.body
         if(body != null && body.data){
@@ -239,7 +231,8 @@ module.exports = function(app) {
         }
         return res.status(200).send({'message': 'Nothings update'})
     })
-    // SUB SERVER CALL
+
+    // Add activity to Central
     app.post('/syncs/activity_logs_to_central', async (req, res) => {
         const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': '0'}})        
         try {
@@ -254,10 +247,15 @@ module.exports = function(app) {
         return res.status(200).send({'message': 'Nothing update'})
     })
 
-    // Checklists
-    // CENTRAL
+    // Add/Update checklists to Central
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
+        
+        console.log('body from sub server', body)
+        
+        return
+
+
         if(body != null && body.data){
             try {
                 for( i in body.data){
@@ -277,19 +275,20 @@ module.exports = function(app) {
         }
         return res.status(200).send({'message': 'Nothing is update'})
     })
-    // SUB SERVER CALL 
+    // Get new checklists updated
     app.post('/syncs/checklists_to_central', async (req, res) => {
         const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid',  filters: {'sid': '0'}})   
-        try {
-            const result = await axios.post(config.centralUrl+'syncs/checklists_from_sub', { 'data': data })
-            if(result && result.status==200){
-                await checklistSyncModel.delete()
-                return res.send({'message': 'sync success'})
-            }
-        } catch (error) {
-            // console.log('sync error')
-        }
-        return res.status(200).send({'message': 'Nothing update'})
+        
+        // try {
+        //     const result = await axios.post(config.centralUrl+'syncs/checklists_from_sub', { 'data': data })
+        //     if(result && result.status==200){
+        //         await checklistSyncModel.delete()
+        //         return res.send({'message': 'sync success'})
+        //     }
+        // } catch (error) {
+        //     // console.log('sync error')
+        // }
+        return res.send({'data': data && data.length ? data : null})
     })
 
 
