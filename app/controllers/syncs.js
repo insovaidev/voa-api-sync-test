@@ -124,7 +124,7 @@ module.exports = function(app) {
                     // check record
                     if(sid<=val.sid) sid = val.sid
                     delete val.sid
-                    const port = await portModel.get({select: '*', filters: {'id': val.id}})
+                    const port = await portModel.getOne({select: '*', filters: {'id': val.id}})
                     if(port) {
                         await portModel.updateSync(body.data[i])
                     } else {
