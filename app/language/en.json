@@ -1,0 +1,14 @@
+{
+    "invalidToken": "The access token provided is expired, revoked, malformed, or invalid for other reasons.",
+    "missingToken": "The method requires authentication but it was not presented or was wholly invalid.",
+    "userBanned": "This user has been banned.",
+    "userNoFound": "User not found.",
+    "incorrectPassword": "The password you enter is incorrect.",
+    "logoutSuccess": "Logout Successful.",
+    "passportExpired": "The expiration date of the passport has expired",
+    "passportNearlyExpired": "Expiration date of the passport must be more than 6 months or 180 days",
+    "checklistNotFound": "Sorry! we can't find the checkist that you provided.",
+    "checklistAlreadyReviewed": "Sorry! You can't review this blacklist because it's already been reviewed. Please try again!",
+    "deviceBanned": "This device is not allowed to use the system.",
+    "deviePending": "This device is waiting to be allowed by the administrator to use this system."
+}
