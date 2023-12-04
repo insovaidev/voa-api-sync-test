@@ -200,15 +200,15 @@ module.exports = function(app) {
         try {
             // const request = await axios.post(config.centralUrl+'syncs/countries_to_sub', {'sid': parseInt(sid)})    
             if(body.data && body.data.length){
-                for(var i in request.data.data) {
-                    var val = request.data.data[i]
+                for(var i in body.data) {
+                    var val = body.data[i]
                     if(sid<=val.sid) sid = val.sid
                     delete val.sid
                     const country = await countryModel.getOne({select: '*', filters: {'id': val.id}})
                     if(country) {
-                        await countryModel.updateSync(request.data.data[i])
+                        await countryModel.updateSync(body.data[i])
                     } else {
-                        await countryModel.addSync(request.data.data[i])
+                        await countryModel.addSync(body.data[i])
                     }
                 }
             }
