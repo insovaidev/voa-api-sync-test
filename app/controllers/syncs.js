@@ -252,12 +252,12 @@ module.exports = function(app) {
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
         console.log(body)
-        
-        if(body != null){
+
+        if(body != undefined){
             try {
                 let sid = 0
-                for( i in body.data){
-                    const val = body.data[i]
+                for( i in body){
+                    const val = body[i]
                     sid = val.sid
                     const result = await checklistModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
                     delete val.sid
