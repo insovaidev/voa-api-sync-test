@@ -251,6 +251,8 @@ module.exports = function(app) {
     // Add/Update checklists to Central: Sync-Central
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
+        console.log(body)
+        
         if(body != null){
             try {
                 let sid = 0
