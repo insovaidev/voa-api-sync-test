@@ -259,6 +259,7 @@ module.exports = function(app) {
                     sid = val.sid
                     const result = await checklistModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
                     delete val.sid
+                    console.log(val)
                     // if(result==null){
                     //     await checklistModel.addSync(val)
                     // } else {
@@ -276,17 +277,13 @@ module.exports = function(app) {
     // Get new checklists updated: Sync-Local
     app.post('/syncs/checklists_to_central', async (req, res) => {
         const sid = req.body.sid
-        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': sid}})
-        // try {
-        //     const result = await axios.post(config.centralUrl+'syncs/checklists_from_sub', { 'data': data })
-        //     if(result && result.status==200){
-        //         await checklistSyncModel.delete()
-        //         return res.send({'message': 'sync success'})
-        //     }
-        // } catch (error) {
-        //     // console.log('sync error')
-        // }
-        return res.send({'data': data && data.length ? data : null})
+        try {
+            const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': sid}})
+            return res.send({'data': data && data.length ? data : null})
+        } catch (error) {
+            console.log(error)
+            next()
+        }
     })
 
 
