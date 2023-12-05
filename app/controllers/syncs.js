@@ -354,18 +354,11 @@ module.exports = function(app) {
     app.post('/syncs/visas_to_central', async (req, res, next) => {
         const sid = req.body.sid
         try {
-            const data = await visaModel.getVisaSync({select: 'v.*, bin_to_uuid(v.vid) as vid, bin_to_uuid(v.uid) as uid',  filters: {'sid': sid}})                   
+            const data = await visaModel.getVisaSync({select: 'v.*, bin_to_uuid(v.vid) as vid, bin_to_uuid(v.uid) as uid, s.sid',  filters: {'sid': sid}})                   
             
             // Sync file
             const SYNC_LOCAL_URL = req.protocol + '://' + req.get('host')
-            
-            console.log(SYNC_LOCAL_URL)
-
-
-            return  
-
-
-
+        
             if(data && data.length ){
                 // Upload To Central
                 data.forEach(async val => {
