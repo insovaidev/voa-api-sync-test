@@ -251,8 +251,6 @@ module.exports = function(app) {
     // Add/Update checklists to Central: Sync-Central
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
-        // console.log(body)
-
         if(body && body != undefined){
             try {
                 let sid = 0
@@ -261,13 +259,11 @@ module.exports = function(app) {
                     sid = val.sid
                     const result = await checklistModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
                     delete val.sid
-
-                    console.log('value', val)
-                    // if(result==null){
-                    //     await checklistModel.addSync(val)
-                    // } else {
-                    //     await checklistModel.updateSync(result.id, val, 'id')
-                    // }   
+                    if(result==null){
+                        await checklistModel.addSync(val)
+                    } else {
+                        await checklistModel.updateSync(result.id, val, 'id')
+                    }   
                 }
                 return res.status(200).send({'sid': sid})    
             } catch (error) {
