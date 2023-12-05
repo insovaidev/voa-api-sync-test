@@ -252,16 +252,19 @@ module.exports = function(app) {
         const body = req.body
         if(body != null && body.data){
             try {
+                let sid = 0
                 for( i in body.data){
+                    sid = val.sid
                     const val = body.data[i]
                     const result = await checklistModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
+                    delete val.sid
                     if(result==null){
-                        await checklistModel.addSync(body.data[i])
+                        await checklistModel.addSync(val)
                     } else {
                         await checklistModel.updateSync(result.id, val, 'id')
                     }   
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.status(200).send({'sid': sid})    
             } catch (error) {
              // console.log('error')
              return res.status(422).send({'message': error.message })   
