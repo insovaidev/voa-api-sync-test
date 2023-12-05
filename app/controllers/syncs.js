@@ -247,15 +247,16 @@ module.exports = function(app) {
         return res.status(200).send({'message': 'Nothing update'})
     })
 
-    // Add/Update checklists to Central
+
+    // Add/Update checklists to Central: Sync-Central
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
         if(body != null && body.data){
             try {
                 let sid = 0
                 for( i in body.data){
-                    sid = val.sid
                     const val = body.data[i]
+                    sid = val.sid
                     const result = await checklistModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
                     delete val.sid
                     if(result==null){
@@ -272,10 +273,9 @@ module.exports = function(app) {
         }
         return res.status(200).send({'message': 'Nothing is update'})
     })
-    // Get new checklists updated
+    // Get new checklists updated: Sync-Local
     app.post('/syncs/checklists_to_central', async (req, res) => {
-        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': '0'}})   
-        
+        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': '0'}})
         // try {
         //     const result = await axios.post(config.centralUrl+'syncs/checklists_from_sub', { 'data': data })
         //     if(result && result.status==200){
