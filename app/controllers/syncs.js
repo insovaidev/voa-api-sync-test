@@ -214,26 +214,19 @@ module.exports = function(app) {
     // Add activity to Central: Sync-Cetral-API call 
     app.post('/syncs/activity_logs_from_sub', async (req, res) => {
         const body = req.body
-
-
-        console.log(body)
-
-        return res.status(200).send({'message': 'Nothings update'})
-        return 
-
-
-
-
-        if(body != null && body.data){
+        if(body!=undefined){
             try {
-                for( i in body.data){
-                    const val = body.data[i]
+                let sid = 0  
+                for( i in body){
+                    const val = body[i]
+                    sid = val.sid
                     const activity_logs = await activityLogModel.get({select: '*', filters: {'id': val.id}})
+                    delete val.sid
                     if(activity_logs == null){
                         await activityLogModel.addSync(body.data[i])
                     }
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.status(200).send({'sid': sid})     
             } catch (error) {
              // console.log('error')
                 return res.status(422).send({'message': error.message })   
@@ -242,27 +235,15 @@ module.exports = function(app) {
     })
 
     // Add activity to Central
-    app.post('/syncs/activity_logs_to_central', async (req, res) => {
+    app.post('/syncs/activity_logs_to_central', async (req, res, next) => {
         const sid = req.body.sid
         try {
             const data = await activityLogModel.getActivitySync({select: 's.sid, a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': sid}})        
             return res.send({'data': data && data.length ? data : null})
         } catch (error) {
-            
+            console.log(error)
+            next()
         }
-        
-        
-        // try {
-        //     const result = await axios.post(config.centralUrl+'syncs/activity_logs_from_sub', { 'data': data })
-        //     if(result && result.status==200){
-        //         await activityLogSyncModel.delete()
-        //         return res.send({'message': 'sync success'})
-        //     }
-        // } catch (error) {
-        //     // console.log('sync error')
-        // }
-        
-        // return res.status(200).send({'message': 'Nothing update'})
     })
 
 
@@ -292,7 +273,7 @@ module.exports = function(app) {
         return res.status(200).send({'message': 'Nothing is update'})
     })
     // Get new checklists add/updated: Sync-Local will call this API
-    app.post('/syncs/checklists_to_central', async (req, res) => {
+    app.post('/syncs/checklists_to_central', async (req, res, next) => {
         const sid = req.body.sid
         try {
             const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': sid}})
