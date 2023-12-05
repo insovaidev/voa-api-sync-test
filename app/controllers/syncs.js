@@ -224,7 +224,7 @@ module.exports = function(app) {
                     const activity_logs = await activityLogModel.get({select: '*', filters: {'id': val.id}})
                     delete val.sid
                     if(activity_logs == null){
-                        await activityLogModel.addSync(body[i])
+                        await activityLogModel.addSync(val)
                     }
                 }
                 return res.status(200).send({'sid': sid})     
