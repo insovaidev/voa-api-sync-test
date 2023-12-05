@@ -259,11 +259,11 @@ module.exports = function(app) {
                     sid = val.sid
                     const result = await checklistModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
                     delete val.sid
-                    if(result==null){
-                        await checklistModel.addSync(val)
-                    } else {
-                        await checklistModel.updateSync(result.id, val, 'id')
-                    }   
+                    // if(result==null){
+                    //     await checklistModel.addSync(val)
+                    // } else {
+                    //     await checklistModel.updateSync(result.id, val, 'id')
+                    // }   
                 }
                 return res.status(200).send({'sid': sid})    
             } catch (error) {
