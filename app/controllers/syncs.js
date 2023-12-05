@@ -218,6 +218,7 @@ module.exports = function(app) {
 
         console.log(body)
 
+        return res.status(200).send({'message': 'Nothings update'})
         return 
 
 
@@ -238,7 +239,6 @@ module.exports = function(app) {
                 return res.status(422).send({'message': error.message })   
             }
         }
-        return res.status(200).send({'message': 'Nothings update'})
     })
 
     // Add activity to Central
