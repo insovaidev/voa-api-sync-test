@@ -214,6 +214,15 @@ module.exports = function(app) {
     // Get new activity from Local
     app.post('/syncs/activity_logs_from_sub', async (req, res) => {
         const body = req.body
+
+
+        console.log(body)
+
+        return 
+
+
+
+
         if(body != null && body.data){
             try {
                 for( i in body.data){
@@ -234,21 +243,30 @@ module.exports = function(app) {
 
     // Add activity to Central
     app.post('/syncs/activity_logs_to_central', async (req, res) => {
-        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': '0'}})        
+        const sid = req.body.sid
         try {
-            const result = await axios.post(config.centralUrl+'syncs/activity_logs_from_sub', { 'data': data })
-            if(result && result.status==200){
-                await activityLogSyncModel.delete()
-                return res.send({'message': 'sync success'})
-            }
+            const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': sid}})        
+            return res.send({'data': data && data.length ? data : null})
         } catch (error) {
-            // console.log('sync error')
+            
         }
-        return res.status(200).send({'message': 'Nothing update'})
+        
+        
+        // try {
+        //     const result = await axios.post(config.centralUrl+'syncs/activity_logs_from_sub', { 'data': data })
+        //     if(result && result.status==200){
+        //         await activityLogSyncModel.delete()
+        //         return res.send({'message': 'sync success'})
+        //     }
+        // } catch (error) {
+        //     // console.log('sync error')
+        // }
+        
+        // return res.status(200).send({'message': 'Nothing update'})
     })
 
 
-    // Add/Update checklists to Central: Sync-Central
+    // Add/Update checklists to Central: Sync-Central-API will call this API
     app.post('/syncs/checklists_from_sub', async (req, res) => {
         const body = req.body
         if(body && body != undefined){
@@ -273,7 +291,7 @@ module.exports = function(app) {
         }
         return res.status(200).send({'message': 'Nothing is update'})
     })
-    // Get new checklists updated: Sync-Local
+    // Get new checklists add/updated: Sync-Local will call this API
     app.post('/syncs/checklists_to_central', async (req, res) => {
         const sid = req.body.sid
         try {
