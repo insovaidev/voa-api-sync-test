@@ -214,6 +214,7 @@ module.exports = function(app) {
     // Add activity to Central: Sync-Cetral-API call 
     app.post('/syncs/activity_logs_from_sub', async (req, res) => {
         const body = req.body
+        
         if(body!=undefined){
             try {
                 let sid = 0  
@@ -223,7 +224,7 @@ module.exports = function(app) {
                     const activity_logs = await activityLogModel.get({select: '*', filters: {'id': val.id}})
                     delete val.sid
                     if(activity_logs == null){
-                        await activityLogModel.addSync(body.data[i])
+                        await activityLogModel.addSync(body[i])
                     }
                 }
                 return res.status(200).send({'sid': sid})     
@@ -234,7 +235,7 @@ module.exports = function(app) {
         }
     })
 
-    // Add activity to Central
+    // Get new activities Local
     app.post('/syncs/activity_logs_to_central', async (req, res, next) => {
         const sid = req.body.sid
         try {
