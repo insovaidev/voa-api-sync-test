@@ -286,7 +286,7 @@ module.exports = function(app) {
     })
 
 
-    // Passports
+    // Add/Update passports to Central
     app.post('/syncs/passports_from_sub', async (req, res) => {
         const body = req.body
         if(body!=undefined){
@@ -312,7 +312,7 @@ module.exports = function(app) {
         return res.status(200).send({'message': 'Nothing is update'})
     })
 
-    // Get new passport just add/update from Local
+    // Get passports just Add/Update from Local
     app.post('/syncs/passports_to_central', async (req, res, next) => {
         const sid = req.body.sid
         try {
@@ -325,14 +325,14 @@ module.exports = function(app) {
     })
 
 
-    // Visas
-    // CENTRAL 
+    // Add/Update visas to Central
     app.post('/syncs/visas_from_sub', async (req, res) => {
         const body = req.body
-        if(body != null && body.data){
+        if(body){
             try {
-                for( i in body.data){
-                    const val = body.data[i]
+                let sid = 0 
+                for( i in body){
+                    const val = body[i]
                     const result = await visaModel.getOne({select: 'bin_to_uuid(vid) as vid', filters: {'vid': val.vid}})
                     if(result == null){
                         await visaModel.addSync(body.data[i])
@@ -348,42 +348,131 @@ module.exports = function(app) {
         }
         return res.status(200).send({'message': 'Nothing is update'})
     })
-    // SUB SERVER CALL
-    app.post('/syncs/visas_to_central', async (req, res, next) => {
-        const data = await visaModel.getVisaSync({select: 'v.*, bin_to_uuid(v.vid) as vid, bin_to_uuid(v.uid) as uid',  filters: {'sid': '0'}})                   
-        if(data && data.length ){
-            // Upload To Central
-            data.forEach(async val => {
-                let attFiles = null
-                if(val.attachments !=undefined ){
-                    attFiles = JSON.parse(val.attachments)
-                    if( attFiles !=undefined){
-                        for (const [key, value] of Object.entries(attFiles)) {
-                            const data = new FormData();
-                            data.append('file', fs.createReadStream(config.uploadDir+value));
-                            try {
-                                const upload = await axios.post(config.centralUrl+'upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
-                            } catch (error) {
-                                //  
-                            }          
-                        }
-                    }                  
-               } 
-            })
 
-            // Send Data To Central
-            try {
-                const result = await axios.post(config.centralUrl+'syncs/visas_from_sub', { 'data': data })
-                if(result && result.status==200){
-                    await visaSyncModel.delete()
-                    return res.send({'message': 'sync success'})
-                }
-            } catch (error) {
-                // console.log('sync error')
+
+    // Get visas just Add/Update from Local
+    app.post('/syncs/visas_to_central', async (req, res, next) => {
+        const sid = req.body.sid
+        try {
+            const data = await visaModel.getVisaSync({select: 'v.*, bin_to_uuid(v.vid) as vid, bin_to_uuid(v.uid) as uid',  filters: {'sid': sid}})                   
+            
+            // Sync file
+            const SYNC_LOCAL_URL = req.protocol + '://' + req.get('host')
+            
+            console.log(SYNC_LOCAL_URL)
+
+
+            return  
+
+
+
+            if(data && data.length ){
+                // Upload To Central
+                data.forEach(async val => {
+                    let attFiles = null
+                    if(val.attachments !=undefined ){
+                        attFiles = JSON.parse(val.attachments)
+                        if( attFiles !=undefined){
+                            for (const [key, value] of Object.entries(attFiles)) {
+                                const data = new FormData();
+                                data.append('file', fs.createReadStream(config.uploadDir+value));
+                                try {
+                                    const upload = await axios.post(SYNC_LOCAL_URL+'/upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
+                                } catch (error) {
+                                    //  
+                                }          
+                            }
+                        }                  
+                   } 
+                })
+    
+    
+                // Send Data To Central
+                // try {
+                //     const result = await axios.post(config.centralUrl+'syncs/visas_from_sub', { 'data': data })
+                //     if(result && result.status==200){
+                //         await visaSyncModel.delete()
+                //         return res.send({'message': 'sync success'})
+                //     }
+                // } catch (error) {
+                //     // console.log('sync error')
+                // }
             }
+
+            
+            return res.send({'data': data && data.length ? data : null}) 
+
+        } catch (error) {
+            next()
         }
+       
+       
+    
+        // if(data && data.length ){
+        //     // Upload To Central
+        //     data.forEach(async val => {
+        //         let attFiles = null
+        //         if(val.attachments !=undefined ){
+        //             attFiles = JSON.parse(val.attachments)
+        //             if( attFiles !=undefined){
+        //                 for (const [key, value] of Object.entries(attFiles)) {
+        //                     const data = new FormData();
+        //                     data.append('file', fs.createReadStream(config.uploadDir+value));
+        //                     try {
+                                
+        //                         const upload = await axios.post(config.centralUrl+'upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
+        //                     } catch (error) {
+        //                         //  
+        //                     }          
+        //                 }
+        //             }                  
+        //        } 
+        //     })
+
+
+        //     // Send Data To Central
+        //     try {
+        //         const result = await axios.post(config.centralUrl+'syncs/visas_from_sub', { 'data': data })
+        //         if(result && result.status==200){
+        //             await visaSyncModel.delete()
+        //             return res.send({'message': 'sync success'})
+        //         }
+        //     } catch (error) {
+        //         // console.log('sync error')
+        //     }
+        // }
         return res.status(200).send({'message': 'Nothing update'})
     })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // Visas Printed
