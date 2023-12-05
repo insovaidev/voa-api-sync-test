@@ -211,7 +211,7 @@ module.exports = function(app) {
     })
 
 
-    // Get new activity from Local
+    // Add activity to Central: Sync-Cetral-API call 
     app.post('/syncs/activity_logs_from_sub', async (req, res) => {
         const body = req.body
 
