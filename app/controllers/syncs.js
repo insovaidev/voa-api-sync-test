@@ -271,7 +271,7 @@ module.exports = function(app) {
     })
     // Get new checklists updated
     app.post('/syncs/checklists_to_central', async (req, res) => {
-        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid',  filters: {'sid': '0'}})   
+        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': '0'}})   
         
         // try {
         //     const result = await axios.post(config.centralUrl+'syncs/checklists_from_sub', { 'data': data })
