@@ -287,21 +287,23 @@ module.exports = function(app) {
 
 
     // Passports
-    // CENTRAL
     app.post('/syncs/passports_from_sub', async (req, res) => {
         const body = req.body
-        if(body != null && body.data){
+        if(body!=undefined){
             try {
-                for( i in body.data){
-                    const val = body.data[i]
+                let sid = 0 
+                for( i in body){
+                    const val = body[i]
+                    sid = val.sid
                     const result = await passportModel.getOne({select: 'bin_to_uuid(pid) as pid', filters: {'pid': val.pid}})
+                    delete val.sid
                     if(result == null){
                         await passportModel.addSync(val)
                     } else {
                         await passportModel.updateSync(result.pid, val, 'pid')
                     }   
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.status(200).send({'sid': sid})    
             } catch (error) {
              // console.log('error')
              return res.status(422).send({'message': error.message })   
@@ -309,19 +311,17 @@ module.exports = function(app) {
         }
         return res.status(200).send({'message': 'Nothing is update'})
     })
-    // SUB SERVER CALL
-    app.post('/syncs/passports_to_central', async (req, res) => {
-        const data = await passportModel.getPassportSync({select: 'p.*, bin_to_uuid(p.pid) as pid, bin_to_uuid(p.vid) as vid, bin_to_uuid(p.uid) as uid',  filters: {'sid': '0'}})
+
+    // Get new passport just add/update from Local
+    app.post('/syncs/passports_to_central', async (req, res, next) => {
+        const sid = req.body.sid
         try {
-            const result = await axios.post(config.centralUrl+'syncs/passports_from_sub', { 'data': data })
-            if(result && result.status==200){
-                await passportSyncModel.delete()
-                return res.send({'message': 'sync success'})
-            }
+            const data = await passportModel.getPassportSync({select: 'p.*, bin_to_uuid(p.pid) as pid, bin_to_uuid(p.vid) as vid, bin_to_uuid(p.uid) as uid, s.sid',  filters: {'sid': sid}})
+            return res.send({'data': data && data.length ? data : null})
         } catch (error) {
-            // console.log('sync error')
+            console.log(error)
+            next()
         }
-        return res.status(200).send({'message': 'Nothing update'})
     })
 
 
