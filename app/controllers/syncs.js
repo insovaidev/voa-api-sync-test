@@ -245,7 +245,7 @@ module.exports = function(app) {
     app.post('/syncs/activity_logs_to_central', async (req, res) => {
         const sid = req.body.sid
         try {
-            const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': sid}})        
+            const data = await activityLogModel.getActivitySync({select: 's.sid, a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': sid}})        
             return res.send({'data': data && data.length ? data : null})
         } catch (error) {
             
