@@ -350,27 +350,25 @@ module.exports = function(app) {
     })
 
 
-    // Get visas just Add/Update from Local
+    // Get visas just Add/Update & Files from Local
     app.post('/syncs/visas_to_central', async (req, res, next) => {
         const sid = req.body.sid
         try {
             const data = await visaModel.getVisaSync({select: 'v.*, bin_to_uuid(v.vid) as vid, bin_to_uuid(v.uid) as uid, s.sid',  filters: {'sid': sid}})                   
-            
             // Sync file
-            const SYNC_LOCAL_URL = req.protocol + '://' + req.get('host')
-        
+            const SYNC_LOCAL_URL = req.protocol + '://' + req.get('host') // Keep use later
             if(data && data.length ){
                 // Upload To Central
                 data.forEach(async val => {
                     let attFiles = null
-                    if(val.attachments !=undefined ){
+                    if(val.attachments != undefined ){
                         attFiles = JSON.parse(val.attachments)
                         if( attFiles !=undefined){
                             for (const [key, value] of Object.entries(attFiles)) {
                                 const data = new FormData();
                                 data.append('file', fs.createReadStream(config.uploadDir+value));
                                 try {
-                                    const upload = await axios.post(SYNC_LOCAL_URL+'/upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
+                                    const upload = await axios.post('http://192.168.88.25:5001/sync/upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
                                 } catch (error) {
                                     //  
                                 }          
@@ -378,63 +376,12 @@ module.exports = function(app) {
                         }                  
                    } 
                 })
-    
-    
-                // Send Data To Central
-                // try {
-                //     const result = await axios.post(config.centralUrl+'syncs/visas_from_sub', { 'data': data })
-                //     if(result && result.status==200){
-                //         await visaSyncModel.delete()
-                //         return res.send({'message': 'sync success'})
-                //     }
-                // } catch (error) {
-                //     // console.log('sync error')
-                // }
             }
-
-            
             return res.send({'data': data && data.length ? data : null}) 
 
         } catch (error) {
             next()
         }
-       
-       
-    
-        // if(data && data.length ){
-        //     // Upload To Central
-        //     data.forEach(async val => {
-        //         let attFiles = null
-        //         if(val.attachments !=undefined ){
-        //             attFiles = JSON.parse(val.attachments)
-        //             if( attFiles !=undefined){
-        //                 for (const [key, value] of Object.entries(attFiles)) {
-        //                     const data = new FormData();
-        //                     data.append('file', fs.createReadStream(config.uploadDir+value));
-        //                     try {
-                                
-        //                         const upload = await axios.post(config.centralUrl+'upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
-        //                     } catch (error) {
-        //                         //  
-        //                     }          
-        //                 }
-        //             }                  
-        //        } 
-        //     })
-
-
-        //     // Send Data To Central
-        //     try {
-        //         const result = await axios.post(config.centralUrl+'syncs/visas_from_sub', { 'data': data })
-        //         if(result && result.status==200){
-        //             await visaSyncModel.delete()
-        //             return res.send({'message': 'sync success'})
-        //         }
-        //     } catch (error) {
-        //         // console.log('sync error')
-        //     }
-        // }
-        return res.status(200).send({'message': 'Nothing update'})
     })
 
 
