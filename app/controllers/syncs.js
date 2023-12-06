@@ -168,7 +168,7 @@ module.exports = function(app) {
                     }
                 }
             }
-            res.send({'id':sid})  
+            res.send({'sid':sid})  
         } catch (error) {
             next() 
         }
@@ -194,9 +194,7 @@ module.exports = function(app) {
                     var val = body.data[i]
                     if(sid<=val.sid) sid = val.sid
                     delete val.sid
-                    const country = await countryModel.getOne({select: '*', filters: {'id': val.id}})
-                   console.log(country)
-                   
+                    const country = await countryModel.getOne({select: '*', filters: {'id': val.id}})         
                     if(country) {
                         await countryModel.updateSync(body.data[i])
                     } else {
@@ -204,7 +202,7 @@ module.exports = function(app) {
                     }
                 }
             }
-            return res.send({'id':sid})   
+            return res.send({'sid':sid})   
         } catch (error) {
             next()
         }        
@@ -355,9 +353,6 @@ module.exports = function(app) {
         const sid = req.body.sid
         try {
             const data = await visaModel.getVisaSync({select: 'v.*, bin_to_uuid(v.vid) as vid, bin_to_uuid(v.uid) as uid, s.sid',  filters: {'sid': sid}})                   
-            // Sync file
-            // const SYNC_LOCAL_URL = req.protocol + '://' + req.get('host') // Keep use later
-            // const SYNC_LOCAL_URL = "http://192.168.88.25:5001/"
             if(data && data.length ){
                 // Upload To Central
                 data.forEach(async val => {
@@ -368,11 +363,11 @@ module.exports = function(app) {
                             for (const [key, value] of Object.entries(attFiles)) {
                                 const data = new FormData();
                                 data.append('file', fs.createReadStream(config.uploadDir+value));
-                                console.log(data._boundary)
                                 try {
+                                    // Upload files to Sync-Local-API
                                     const upload = await axios.post('http://192.168.88.25:5001/sync/upload_sync', data, { headers: { 'attachments': value,  'accept': 'application/json', 'Accept-Language': 'en-US,en;q=0.8','Content-Type': `multipart/form-data; boundary=${data._boundary}`,}})  
                                 } catch (error) {
-                                    //  
+                                    // console.log(error)
                                 }          
                             }
                         }                  
@@ -385,37 +380,6 @@ module.exports = function(app) {
             next()
         }
     })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Visas Printed
     // CENTRAL 
