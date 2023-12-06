@@ -162,13 +162,28 @@ module.exports = function(app) {
     })
 
     app.post('/local_syncs/activity_logs', async (req, res) => {
-        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': '0'}})        
+        var sync_logs = {}
+        var request = null
+        if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
+        var sid = sync_logs.activities != undefined ? sync_logs.activities : 0 
+        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': sid}})        
+        // console.log(data)
         try {
-            const result = await axios.post(config.centralUrl+'central_syncs/activity_logs', { 'data': data })
-            if(result && result.status==200){
-                await activityLogSyncModel.delete()
-                return res.send({'message': 'sync success'})
+            if(data){
+                if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/activity_logs', { 'data': data })){
+                    console.log(sync_reaspone)
+                }
             }
+            
+            // console.log(result)
+
+            // if(result && result.status==200){
+            //     await activityLogSyncModel.delete()
+            //     return res.send({'message': 'sync success'})
+            // }
+
+            return res.send({'sid': sid})
+
         } catch (error) {
             // console.log('sync error')
         }

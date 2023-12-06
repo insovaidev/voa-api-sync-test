@@ -70,22 +70,23 @@ module.exports = function(app) {
 
     app.post('/central_syncs/activity_logs', async (req, res) => {
         const body = req.body
-        if(body != null && body.data){
+        if(body){
             try {
-                for( i in body.data){
-                    const val = body.data[i]
+                let sid = 0
+                for( i in body){
+                    sid = val.sid
+                    const val = body[i]
+                    delete val.sid
                     const activity_logs = await activityLogModel.get({select: '*', filters: {'id': val.id}})
                     if(activity_logs == null){
-                        await activityLogModel.addSync(body.data[i])
+                        await activityLogModel.addSync(val)
                     }
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.send({'sid': sid})    
             } catch (error) {
-             // console.log('error')
-                return res.status(422).send({'message': error.message })   
+            //  console.log(error)   
             }
         }
-        return res.status(200).send({'message': 'Nothings update'})
     })
 
     app.post('/central_syncs/checklists', async (req, res) => {
