@@ -1,0 +1,13 @@
+URL:
+- http://192.168.88.25:5000/local_syncs/users
+- http://192.168.88.25:5000/local_syncs/profile
+- http://192.168.88.25:5000/local_syncs/ports
+- http://192.168.88.25:5000/local_syncs/countries
+- http://192.168.88.25:5000/local_syncs/visa_tpyes
+- http://192.168.88.25:5000/local_syncs/activity_logs
+- http://192.168.88.25:5000/local_syncs/checklists
+- http://192.168.88.25:5000/local_syncs/passports
+- http://192.168.88.25:5000/local_syncs/visas
+- http://192.168.88.25:5000/local_syncs/printed_visas
+- http://192.168.88.25:5000/local_syncs/deleted_visas
+

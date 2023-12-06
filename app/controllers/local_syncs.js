@@ -162,19 +162,20 @@ module.exports = function(app) {
     })
 
     app.post('/local_syncs/activity_logs', async (req, res) => {
-        var sync_logs = {}
-        var request = null
+        let sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
-        var sid = sync_logs.activities != undefined ? sync_logs.activities : 0 
+        let sid = sync_logs.activities != undefined ? sync_logs.activities : 0 
         const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id, s.sid', filters: {'sid': sid}})        
-        console.log(data)
         try {
             if(data && data.length){
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/activity_logs', { 'data': data })){
-                    console.log(sync_reaspone)
+                    if(sync_reaspone.data.sid){
+                        sync_logs.activities = sync_reaspone.data.sid
+                        fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
+                    } 
                 }
             }
-            return res.send({'sid': sid})
+            return res.send({'sid': sync_logs.activities})
         } catch (error) {
             // console.log(error)
         }
