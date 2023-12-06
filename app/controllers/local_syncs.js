@@ -21,7 +21,7 @@ const deletedVisasSyncModel = require('../models/deletedVisasSyncModel');
 
 
 module.exports = function(app) {
-    // app.use('/local_syncs')
+    // app.use('/local_syncs', [])
 
     app.post('/local_syncs/users', async (req, res, next) => {      
         var sync_logs = {}
@@ -29,7 +29,7 @@ module.exports = function(app) {
         var sid = sync_logs.users != undefined ? sync_logs.users : 0
         
         try {    
-            const request = await axios.post(config.centralUrl+'syncs/users_to_sub', {'sid': parseInt(sid)})
+            const request = await axios.post(config.centralUrl+'central_syncs/users', {'sid': parseInt(sid)})
             if(request && request.data != null && request.data.data) {
                     for(var i in request.data.data) {
                         var val = request.data.data[i]
