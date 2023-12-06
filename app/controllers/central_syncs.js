@@ -73,10 +73,10 @@ module.exports = function(app) {
         try {
             let sid = 0
             for( i in body.data){
-                sid = val.sid
                 const val = body.data[i]
-                delete val.sid
+                sid = val.sid
                 const activity_logs = await activityLogModel.get({select: '*', filters: {'id': val.id}})
+                delete val.sid
                 if(activity_logs == null){
                     await activityLogModel.addSync(val)
                 }
