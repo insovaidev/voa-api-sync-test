@@ -166,28 +166,18 @@ module.exports = function(app) {
         var request = null
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         var sid = sync_logs.activities != undefined ? sync_logs.activities : 0 
-        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id', filters: {'sid': sid}})        
-        // console.log(data)
+        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id, s.sid', filters: {'sid': sid}})        
+        console.log(data)
         try {
-            if(data){
+            if(data && data.length){
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/activity_logs', { 'data': data })){
                     console.log(sync_reaspone)
                 }
             }
-            
-            // console.log(result)
-
-            // if(result && result.status==200){
-            //     await activityLogSyncModel.delete()
-            //     return res.send({'message': 'sync success'})
-            // }
-
             return res.send({'sid': sid})
-
         } catch (error) {
-            // console.log('sync error')
+            // console.log(error)
         }
-        return res.status(200).send({'message': 'Nothing update'})
     })
 
     app.post('/local_syncs/checklists', async (req, res) => {
