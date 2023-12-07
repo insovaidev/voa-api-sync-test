@@ -137,67 +137,68 @@ module.exports = function(app) {
         const body = req.body
         if(body != null && body.data){
             try {
+                let sid = 0 
                 for( i in body.data){
                     const val = body.data[i]
+                    sid = val.sid
                     const result = await visaModel.getOne({select: 'bin_to_uuid(vid) as vid', filters: {'vid': val.vid}})
+                    delete val.sid
                     if(result == null){
-                        await visaModel.addSync(body.data[i])
+                        await visaModel.addSync(val)
                     } else {
                         await visaModel.updateSync(result.vid, val, 'vid')
                     }   
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.send({'sid': sid})    
             } catch (error) {
-             // console.log('error')
-             return res.status(422).send({'message': error.message })   
+             // console.log(error)
             }
         }
-        return res.status(200).send({'message': 'Nothing is update'})
     })
 
     app.post('/central_syncs/printed_visas', async (req, res) => {
         const body = req.body
         if(body != null && body.data){
             try {
+                let sid = 0 
                 for( i in body.data){
                     const val = body.data[i]
+                    sid = val.sid
                     const result = await printedVisasModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})
+                    delete val.sid
                     if(result==null){
-                        await printedVisasModel.addSync(body.data[i])
+                        await printedVisasModel.addSync(val)
                     } else {
                         await printedVisasModel.updateSync(result.id, val, 'id')
                     }   
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.send({'sid': sid})    
             } catch (error) {
-             // console.log('error')
-             return res.status(422).send({'message': error.message })   
+            //  console.log(error)
             }
         }
-        return res.status(200).send({'message': 'Nothing is update'})
     })
 
     app.post('/central_syncs/deleted_visas', async (req, res) => {
         const body = req.body
-        // console.log(body)
         if(body != null && body.data){
             try {
+                let sid = 0 
                 for( i in body.data){
                     const val = body.data[i]
-                    const result = await deletedVisasModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})                    
+                    sid = val.sid
+                    const result = await deletedVisasModel.getOne({select: 'bin_to_uuid(id) as id', filters: {'id': val.id}})         
+                    delete val.sid           
                     if(result==null){
-                        await deletedVisasModel.addSync(body.data[i])
+                        await deletedVisasModel.addSync(val)
                     } else {
                         await deletedVisasModel.updateSync(result.id, val, 'id')
                     }   
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.send({'sid': sid})    
             } catch (error) {
-             // console.log('error')
-             return res.status(422).send({'message': error.message })   
+             // console.log(error)
             }
         }
-        return res.status(200).send({'message': 'Nothing is update'})
     })
-
 }
