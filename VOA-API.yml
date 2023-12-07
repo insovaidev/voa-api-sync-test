@@ -20,8 +20,6 @@
 
 
 VOA APP
-        
-
 # Local/Port Server: 192.168.1.1
 
     * VOA-API: 192.168.1.1:3000
@@ -45,8 +43,6 @@ VOA APP
         - printed_visas
 
 VOA APP
-
-
 # Local/Port Server: 192.168.2.1
 
     * VOA-API: 192.168.1.1:3000
