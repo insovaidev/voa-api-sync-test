@@ -11,7 +11,6 @@ const deletedVisasModel = require('../models/deletedVisasModel')
 
 
 module.exports = function(app) {
-
     app.post('/central_syncs/users', async (req, res) => {
         var data = []
         if(req.body.sid != undefined && req.body.port != undefined) {

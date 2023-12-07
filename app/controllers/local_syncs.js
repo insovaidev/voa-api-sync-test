@@ -15,8 +15,7 @@ const deletedVisasModel = require('../models/deletedVisasModel')
 
 
 module.exports = function(app) {
-
-    app.post('/local_syncs/users', async (req, res, next) => {      
+    app.post('/local_syncs/users', async (req, res) => {      
         const portCode = 'PHN'
         var sync_logs = {}
         if(result = await fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
@@ -41,8 +40,7 @@ module.exports = function(app) {
                 fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
                 return res.send({'sid': sid })
         } catch (error) {
-            next()
-            // res.status(201).send({'message': 'CONFUSE SERVER'})
+            // 
         }
     })
 
@@ -66,7 +64,7 @@ module.exports = function(app) {
         }
     })
 
-    app.post('/local_syncs/ports', async (req, res, next) => {
+    app.post('/local_syncs/ports', async (req, res) => {
         var sync_logs = {}
         let request = null;
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
@@ -92,11 +90,11 @@ module.exports = function(app) {
             fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
             res.send({'sid':sid})
         } catch (error) {
-            next()
+            // 
         }
     })
 
-    app.post('/local_syncs/visa_types', async (req, res, next) => {
+    app.post('/local_syncs/visa_types', async (req, res) => {
         var sync_logs = {}
         var request = null
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
@@ -122,15 +120,14 @@ module.exports = function(app) {
             res.send({'sid':sid})
                 
         } catch (error) {
-            next() 
+            // 
         }
     })
 
-    app.post('/local_syncs/countries', async (req, res, next) => {
+    app.post('/local_syncs/countries', async (req, res) => {
         var sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         var sid = sync_logs.countries != undefined ? sync_logs.countries : 0
-
         try {
             const request = await axios.post(config.centralUrl+'central_syncs/countries', {'sid': parseInt(sid)})    
             if(request.data != null && request.data.data) {
@@ -150,7 +147,7 @@ module.exports = function(app) {
             fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
             res.send({'sid':sid})   
         } catch (error) {
-            next()
+            // 
         }        
     })
 
@@ -214,7 +211,7 @@ module.exports = function(app) {
         }
     })
 
-    app.post('/local_syncs/visas', async (req, res, next) => {
+    app.post('/local_syncs/visas', async (req, res) => {
         let sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.visas != undefined ? sync_logs.visas : 0 
@@ -273,20 +270,11 @@ module.exports = function(app) {
         }
     })
 
-    app.post('/local_syncs/deleted_visas', async (req, res, next) => {
+    app.post('/local_syncs/deleted_visas', async (req, res) => {
         let sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.deleted_visas != undefined ? sync_logs.deleted_visas : 0 
-        const data = await deletedVisasModel.getVisasSync({select: 'dv.*, bin_to_uuid(dv.id) as id, bin_to_uuid(dv.vid) as vid, bin_to_uuid(dv.uid) as uid, s.sid',  filters: {'sid': sid}})              
-        
-
-        // console.log(data)
-
-
-
-        // return 
-
-        
+        const data = await deletedVisasModel.getVisasSync({select: 'dv.*, bin_to_uuid(dv.id) as id, bin_to_uuid(dv.vid) as vid, bin_to_uuid(dv.uid) as uid, s.sid',  filters: {'sid': sid}})                      
         if(data && data.length ){   
             // Upload To Central
             data.forEach(async val => {
