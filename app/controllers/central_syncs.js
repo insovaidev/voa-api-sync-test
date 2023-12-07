@@ -11,7 +11,6 @@ const deletedVisasModel = require('../models/deletedVisasModel')
 
 
 module.exports = function(app) {
-    // app.use('/central_syncs')
 
     app.post('/central_syncs/users', async (req, res) => {
         var data = []
@@ -27,19 +26,21 @@ module.exports = function(app) {
         const body = req.body
         if(body != null && body.data){
             try {
+                let sid = 0
                 for( i in body.data){
                     const val = body.data[i]
-                    const result = await userModel.getOne({select: 'bin_to_uuid(uid) as uid', filters: {'uid': val.uid}})     
+                    sid = val.sid
+                    const result = await userModel.getOne({select: '*', filters: {'uid': val.uid}})  
+                    delete val.sid   
                     if(result){
                         await userModel.updateProfileSync(val.uid, val, 'uid')
                     } 
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.send({'sid': sid})    
             } catch (error) {
-                return res.status(422).send({'message': error.message })   
+                // console.log(error)
             }
         }
-        return res.status(200).send({'message': 'Nothing is update'})
     })
 
     app.post('/central_syncs/ports', async (req, res) => {

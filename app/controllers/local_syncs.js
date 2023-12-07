@@ -50,21 +50,20 @@ module.exports = function(app) {
         var sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         var sid = sync_logs.profile != undefined ? sync_logs.profile : 0       
-        const data = await userModel.getUserSync({select: 'bin_to_uuid(u.uid) as uid, u.password, u.phone, u.sex, u.name, u.email, u.updated_at, s.sid' , filters: {'sid': sid}})     
-        if(data){
-            const lastSid = data[0].sid
-            try {
-                const result = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': data })
-                if(result && result.status==200){
-                    sync_logs.profile = lastSid
-                    fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
-                    return res.send({'message': 'sync success'})
+        const data = await userModel.getUserSync({select: 'bin_to_uuid(u.uid) as uid, u.password, u.phone, u.sex, u.name, u.email, u.updated_at, s.sid' , filters: {'sid': sid}})
+        try {
+            if(data && data.length){
+                if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': data })){
+                    if(sync_reaspone.data.sid){
+                        sync_logs.profile = sync_reaspone.data.sid
+                        fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
+                    } 
                 }
-            } catch (error) {
-                // console.log('sync error')
             }
+            return res.send({'sid': sync_logs.profile})
+        } catch (error) {
+            // console.log('sync error')
         }
-        return res.status(200).send({'message': 'Nothing update'})
     })
 
     app.post('/local_syncs/ports', async (req, res, next) => {
