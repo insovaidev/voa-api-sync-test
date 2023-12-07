@@ -182,6 +182,9 @@ module.exports = function(app) {
     })
 
     app.post('/local_syncs/checklists', async (req, res) => {
+        let sync_logs = {}
+        if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
+        let sid = sync_logs.checklists != undefined ? sync_logs.checklists : 0 
         const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': '0'}})   
         try {
             if(data && data.length){
@@ -199,17 +202,23 @@ module.exports = function(app) {
     })
 
     app.post('/local_syncs/passports', async (req, res) => {
-        const data = await passportModel.getPassportSync({select: 'p.*, bin_to_uuid(p.pid) as pid, bin_to_uuid(p.vid) as vid, bin_to_uuid(p.uid) as uid',  filters: {'sid': '0'}})
+        let sync_logs = {}
+        if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
+        let sid = sync_logs.passports != undefined ? sync_logs.passports : 0 
+        const data = await passportModel.getPassportSync({select: 'p.*, bin_to_uuid(p.pid) as pid, bin_to_uuid(p.vid) as vid, bin_to_uuid(p.uid) as uid, s.sid',  filters: {'sid': '0'}})
         try {
-            const result = await axios.post(config.centralUrl+'central_syncs/passports', { 'data': data })
-            if(result && result.status==200){
-                await passportSyncModel.delete()
-                return res.send({'message': 'sync success'})
+            if(data && data.length){
+                if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/passports', { 'data': data })){
+                    if(sync_reaspone.data.sid){
+                        sync_logs.passports = sync_reaspone.data.sid
+                        fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
+                    } 
+                }
             }
+            return res.send({'sid': sync_logs.passports})
         } catch (error) {
             // console.log('sync error')
         }
-        return res.status(200).send({'message': 'Nothing update'})
     })
 
     app.post('/local_syncs/visas', async (req, res, next) => {

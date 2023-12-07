@@ -114,22 +114,23 @@ module.exports = function(app) {
         const body = req.body
         if(body != null && body.data){
             try {
+                let sid = 0
                 for( i in body.data){
                     const val = body.data[i]
+                    sid = val.sid
                     const result = await passportModel.getOne({select: 'bin_to_uuid(pid) as pid', filters: {'pid': val.pid}})
+                    delete val.sid
                     if(result == null){
                         await passportModel.addSync(val)
                     } else {
                         await passportModel.updateSync(result.pid, val, 'pid')
                     }   
                 }
-                return res.status(200).send({'message': 'sync success'})    
+                return res.status(200).send({'sid': sid})    
             } catch (error) {
              // console.log('error')
-             return res.status(422).send({'message': error.message })   
             }
         }
-        return res.status(200).send({'message': 'Nothing is update'})
     })
  
     app.post('/central_syncs/visas', async (req, res) => {
