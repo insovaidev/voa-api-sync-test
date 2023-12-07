@@ -15,8 +15,8 @@ module.exports = function(app) {
         var data = []
         if(req.body.sid != undefined && req.body.port != undefined) {
             const sid = req.body.sid
-            const port = req.body.port 
-            data = await userModel.sync({select: 'u.*, bin_to_uuid(u.uid) as uid, s.sid', filters: {'sid': sid, 'port': port}})
+            const ports = req.body.ports 
+            data = await userModel.sync({select: 'u.*, bin_to_uuid(u.uid) as uid, s.sid', filters: {'sid': sid, 'ports': ports}})
         }
         res.send({'data': data && data.length ? data : null})
     })

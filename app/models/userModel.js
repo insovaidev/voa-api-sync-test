@@ -96,7 +96,7 @@ module.exports = {
         // Where condition
         if(filters){
             if(filters.sid) q.where('s.sid', '>', filters.sid)  
-            if(filters.port) q.where('s.port', filters.port)
+            if(filters.port) q.whereIn('s.port', filters.ports)
         }
 
         // Return 
