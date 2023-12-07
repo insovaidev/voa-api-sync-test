@@ -264,6 +264,10 @@ module.exports = function(app) {
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.printed_visas != undefined ? sync_logs.printed_visas : 0 
         const data = await printedVisasModel.getVisasSync({select: 'pv.*, bin_to_uuid(pv.id) as id, bin_to_uuid(pv.vid) as vid, bin_to_uuid(pv.uid) as uid, s.sid',  filters: {'sid': sid}})           
+        
+        
+        // console.log(data)
+        
         try {
             if(data && data.length){
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/printed_visas', { 'data': data })){
