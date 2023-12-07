@@ -60,7 +60,7 @@ module.exports = {
         q.select()
         if(select) q.select(db.raw(select)) 
         if(filters){
-            if(filters.pid) q.whereRaw('id=uuid_to_bin('+"'"+filters.id+"'"+')')
+            if(filters.id) q.whereRaw('id=uuid_to_bin('+"'"+filters.id+"'"+')')
         }   
         q.limit(1)
         const result = await q;

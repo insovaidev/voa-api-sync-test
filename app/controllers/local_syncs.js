@@ -16,16 +16,13 @@ const deletedVisasModel = require('../models/deletedVisasModel')
 
 module.exports = function(app) {
     app.post('/local_syncs/users', async (req, res) => {      
-        const portCode = ['PHN','PSN']
+        const portCode = ['PHN'] // Port that can use this server.
         var sync_logs = {}
         if(result = await fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         var sid = sync_logs.users != undefined ? sync_logs.users : 0
         
         try {    
-            const request = await axios.post(config.centralUrl+'central_syncs/users', {'sid': parseInt(sid), 'ports': portCode})
-           
-            console.log(request.data)
-            
+            const request = await axios.post(config.centralUrl+'central_syncs/users', {'sid': parseInt(sid), 'ports': portCode})         
             if(request && request.data != null && request.data.data) {
                     for(var i in request.data.data) {
                         var val = request.data.data[i]
@@ -258,13 +255,13 @@ module.exports = function(app) {
     })
 
     app.post('/local_syncs/printed_visas', async (req, res) => {
-        console.log('printed visas')
         let sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.printed_visas != undefined ? sync_logs.printed_visas : 0 
         const data = await printedVisasModel.getVisasSync({select: 'pv.*, bin_to_uuid(pv.id) as id, bin_to_uuid(pv.vid) as vid, bin_to_uuid(pv.uid) as uid, s.sid',  filters: {'sid': sid}})           
         try {
             if(data && data.length){
+                
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/printed_visas', { 'data': data })){
                     if(sync_reaspone.data.sid){
                         sync_logs.printed_visas = sync_reaspone.data.sid
