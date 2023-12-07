@@ -23,6 +23,9 @@ module.exports = function(app) {
         
         try {    
             const request = await axios.post(config.centralUrl+'central_syncs/users', {'sid': parseInt(sid), 'ports': portCode})
+           
+            console.log(request.data)
+            
             if(request && request.data != null && request.data.data) {
                     for(var i in request.data.data) {
                         var val = request.data.data[i]
