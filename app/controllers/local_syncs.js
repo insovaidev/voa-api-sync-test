@@ -165,7 +165,7 @@ module.exports = function(app) {
         let sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.activities != undefined ? sync_logs.activities : 0 
-        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id, s.sid', filters: {'sid': sid}})        
+        const data = await activityLogModel.getActivitySync({select: 'a.*, bin_to_uuid(a.id) as id, bin_to_uuid(a.uid) as uid, bin_to_uuid(a.record_id) as record_id, s.sid', filters: {'sid': sid}})
         try {
             if(data && data.length){
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/activity_logs', { 'data': data })){
@@ -182,7 +182,7 @@ module.exports = function(app) {
     })
 
     app.post('/local_syncs/checklists', async (req, res) => {
-        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid',  filters: {'sid': '0'}})   
+        const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid, s.sid',  filters: {'sid': '0'}})   
         try {
             if(data && data.length){
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/checklists', { 'data': data })){
