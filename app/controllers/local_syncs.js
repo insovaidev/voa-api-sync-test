@@ -184,15 +184,18 @@ module.exports = function(app) {
     app.post('/local_syncs/checklists', async (req, res) => {
         const data = await checklistModel.getChecklistSync({select: 'c.*, bin_to_uuid(c.id) as id, bin_to_uuid(c.uid) as uid',  filters: {'sid': '0'}})   
         try {
-            const result = await axios.post(config.centralUrl+'central_syncs/checklists', { 'data': data })
-            if(result && result.status==200){
-                await checklistSyncModel.delete()
-                return res.send({'message': 'sync success'})
+            if(data && data.length){
+                if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/checklists', { 'data': data })){
+                    if(sync_reaspone.data.sid){
+                        sync_logs.checklists = sync_reaspone.data.sid
+                        fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
+                    } 
+                }
             }
+            return res.send({'sid': sync_logs.checklists})
         } catch (error) {
             // console.log('sync error')
         }
-        return res.status(200).send({'message': 'Nothing update'})
     })
 
     app.post('/local_syncs/passports', async (req, res) => {

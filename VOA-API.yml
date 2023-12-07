@@ -1,0 +1,72 @@
+# Central Server: 192.168.0.1
+
+    * VOA-API: 192.168.0.1: 3000
+
+    * Sync-Central-API: 192.168.0.1: 3001
+
+        // Return Data: Handle get request from Sync-Local-API for retrieve new data or updated data
+        - users: return data by ports
+        - ports
+        - visa_types
+        - countries
+
+        // Add or Update Data: Handle sumit form from Sync-Local-API for add new data or update data if exist
+        - activity_logs
+        - checklists
+        - passports
+        - visas
+        - deleted_visas
+        - printed_visas
+
+
+VOA APP
+        
+
+# Local/Port Server: 192.168.1.1
+
+    * VOA-API: 192.168.1.1:3000
+
+
+    Cron-job / Schedule task (Auto-Request):
+    * Sync-Local-API (Update data & Transfer data to central): 192.168.1.1:3001
+
+        // Retrieve Data: get new/updated data from Sync-Central-API
+        - users: request data by ports: Get Rquest -> 192.168.0.1: 3001/users
+        - ports
+        - visa_types
+        - countries
+
+        // Transter Data: submit new/updated data to Sync-Central-API
+        - activity_logs: post request -> 192.168.0.1: 3001/activity_logs
+        - checklists
+        - passports
+        - visas
+        - deleted_visas
+        - printed_visas
+
+VOA APP
+
+
+# Local/Port Server: 192.168.2.1
+
+    * VOA-API: 192.168.1.1:3000
+
+
+    Cron-job / Schedule task (Auto-Request):
+    * Sync-Local-API (Update data & Transfer data to central): 192.168.1.1:3001
+
+        // Retrieve Data: get new/updated data from Sync-Central-API
+        - users: request data by ports: Get Rquest -> 192.168.0.1: 3001/users
+        - ports
+        - visa_types
+        - countries
+
+        // Transter Data: submit new/updated data to Sync-Central-API
+        - activity_logs: post request -> 192.168.0.1: 3001/activity_logs
+        - checklists
+        - passports
+        - visas
+        - deleted_visas
+        - printed_visas
+
+VOA APP

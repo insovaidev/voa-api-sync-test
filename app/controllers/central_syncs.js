@@ -74,15 +74,12 @@ module.exports = function(app) {
             let sid = 0
             for( i in body.data){
                 const val = body.data[i]
-                console.log(val.sid)
                 sid = val.sid
                 const activity_logs = await activityLogModel.get({select: '*', filters: {'id': val.id}})
-              
                 delete val.sid
-              
-                // if(activity_logs == null){
-                //     await activityLogModel.addSync(val)
-                // }
+                if(activity_logs == null){
+                    await activityLogModel.addSync(val)
+                }
             }
             return res.send({'sid': sid})    
         } catch (error) {
