@@ -12,18 +12,13 @@ const passportModel = require('../models/passportModel')
 const checklistModel = require("../models/checklistModel")
 const printedVisasModel = require('../models/printedVisasModel')
 const deletedVisasModel = require('../models/deletedVisasModel')
-const activityLogSyncModel = require('../models/activityLogSyncModel')
-const checklistSyncModel = require('../models/checklistSyncModel')
-const passportSyncModel = require('../models/passportSyncModel')
-const visaSyncModel = require('../models/visaSyncModel') 
-const printedVisasSyncModel = require('../models/printedVisasSyncModel')
-const deletedVisasSyncModel = require('../models/deletedVisasSyncModel');
 
 
 module.exports = function(app) {
     // app.use('/local_syncs', chec)
 
     app.post('/local_syncs/users', async (req, res, next) => {      
+        // console.log('Users') // 
         var sync_logs = {}
         if(result = await fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         var sid = sync_logs.users != undefined ? sync_logs.users : 0
@@ -257,6 +252,7 @@ module.exports = function(app) {
                 // console.log('sync error')
             }
         }
+        // next()
     })
 
     app.post('/local_syncs/printed_visas', async (req, res) => {
@@ -264,10 +260,6 @@ module.exports = function(app) {
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.printed_visas != undefined ? sync_logs.printed_visas : 0 
         const data = await printedVisasModel.getVisasSync({select: 'pv.*, bin_to_uuid(pv.id) as id, bin_to_uuid(pv.vid) as vid, bin_to_uuid(pv.uid) as uid, s.sid',  filters: {'sid': sid}})           
-        
-        
-        // console.log(data)
-        
         try {
             if(data && data.length){
                 if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/printed_visas', { 'data': data })){
@@ -283,11 +275,20 @@ module.exports = function(app) {
         }
     })
 
-    app.post('/local_syncs/deleted_visas', async (req, res) => {
+    app.post('/local_syncs/deleted_visas', async (req, res, next) => {
         let sync_logs = {}
         if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
         let sid = sync_logs.deleted_visas != undefined ? sync_logs.deleted_visas : 0 
-        const data = await deletedVisasModel.getVisasSync({select: 'dv.*, bin_to_uuid(dv.id) as id, bin_to_uuid(dv.vid) as vid, bin_to_uuid(dv.uid) as uid, s.sid',  filters: {'sid': sid}})        
+        const data = await deletedVisasModel.getVisasSync({select: 'dv.*, bin_to_uuid(dv.id) as id, bin_to_uuid(dv.vid) as vid, bin_to_uuid(dv.uid) as uid, s.sid',  filters: {'sid': sid}})              
+        
+
+        // console.log(data)
+
+
+
+        // return 
+
+        
         if(data && data.length ){   
             // Upload To Central
             data.forEach(async val => {
@@ -314,10 +315,10 @@ module.exports = function(app) {
                         fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
                     } 
                 }
-                return res.send({'sid': sync_logs.deleted_visas})
             } catch (error) {
                 // console.log(error)
             }
         }
+        return res.send({'sid': sync_logs.deleted_visas})
     })
 }
