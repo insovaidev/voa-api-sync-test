@@ -15,9 +15,10 @@ module.exports = function(app) {
 
     app.post('/central_syncs/users', async (req, res) => {
         var data = []
-        if(req.body.sid != undefined) {
-            var sid = req.body.sid
-            data = await userModel.sync({select: 'u.*, bin_to_uuid(u.uid) as uid, s.sid', filters: {'sid': sid  }})
+        if(req.body.sid != undefined && req.body.port != undefined) {
+            const sid = req.body.sid
+            const port = req.body.port 
+            data = await userModel.sync({select: 'u.*, bin_to_uuid(u.uid) as uid, s.sid', filters: {'sid': sid, 'port': port}})
         }
         res.send({'data': data && data.length ? data : null})
     })
