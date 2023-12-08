@@ -4,7 +4,7 @@ const express = require('express')
 const local_syncs = express()
 const cors = require('cors')
 require('dotenv').config()
-const PORT = 5001
+const PORT = 5001 
 
 // Allow close domain
 local_syncs.use(cors())
@@ -77,10 +77,9 @@ local_syncs.post('/local_syncs/profile', async (req, res) => {
     if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
     var sid = sync_logs.profile != undefined ? sync_logs.profile : 0       
     const data = await userModel.getUserSync({select: 'bin_to_uuid(u.uid) as uid, u.password, u.phone, u.sex, u.name, u.email, u.updated_at, s.sid' , filters: {'sid': sid}})
-    console.log(data)
     try {
         if(data && data.length){
-            if(sync_reaspone = await axios.post(CENTRAL_SYNC_API+'central_syncs/profile', { 'data': body })){
+            if(sync_reaspone = await axios.post(CENTRAL_SYNC_API+'central_syncs/profile', { 'data': data })){
                 if(sync_reaspone.data.sid){
                     sync_logs.profile = sync_reaspone.data.sid
                     fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
@@ -344,7 +343,6 @@ local_syncs.post('/local_syncs/deleted_visas', async (req, res) => {
     }
     return res.send({'sid': sync_logs.deleted_visas})
 })
-
 
 local_syncs.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`)
