@@ -50,11 +50,6 @@ local_syncs.post('/local_syncs/users', async (req, res) => {
     
     try {    
         const request = await axios.post(CENTRAL_SYNC_API+'central_syncs/users', {'sid': parseInt(sid), 'ports': portCode})         
-        
-        console.log(request)
-
-
-
         if(request && request.data != null && request.data.data) {
                 for(var i in request.data.data) {
                     var val = request.data.data[i]
@@ -82,6 +77,7 @@ local_syncs.post('/local_syncs/profile', async (req, res) => {
     if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
     var sid = sync_logs.profile != undefined ? sync_logs.profile : 0       
     const data = await userModel.getUserSync({select: 'bin_to_uuid(u.uid) as uid, u.password, u.phone, u.sex, u.name, u.email, u.updated_at, s.sid' , filters: {'sid': sid}})
+    console.log(data)
     try {
         if(data && data.length){
             if(sync_reaspone = await axios.post(CENTRAL_SYNC_API+'central_syncs/profile', { 'data': body })){

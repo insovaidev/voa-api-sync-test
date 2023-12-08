@@ -58,6 +58,7 @@ central_syncs.post('/central_syncs/profile', async (req, res) => {
                 sid = val.sid
                 const result = await userModel.getOne({select: '*', filters: {'uid': val.uid}})  
                 delete val.sid   
+                console.log(val)
                 if(result){
                     await userModel.updateProfileSync(val.uid, val, 'uid')
                 } 
