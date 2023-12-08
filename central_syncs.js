@@ -24,11 +24,8 @@ central_syncs.use('/pdf', express.static('pdf'))
 central_syncs.use('/xlsx', express.static('xlsx'))
 central_syncs.use('/uploads', express.static('uploads'))
 
-
+// Configure 
 const config = require('./app/config/config')
-const userModel = require('./app/models/userModel')
-
-
 
 const activityLogModel = require("./app/models/activityLogModel")
 const portModel = require("./app/models/portModel")
