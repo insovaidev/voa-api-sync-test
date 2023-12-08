@@ -41,7 +41,8 @@ const printedVisasModel = require('./app/models/printedVisasModel')
 const deletedVisasModel = require('./app/models/deletedVisasModel');
 
 
-local_syncs.post('/local_syncs/users', async (req, res) => {      
+local_syncs.post('/local_syncs/users', async (req, res) => {    
+    console.log('Users')  
     const portCode = ['PHN'] // Port that can use this server.
     var sync_logs = {}
     if(result = await fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
