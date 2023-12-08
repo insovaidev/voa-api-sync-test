@@ -12,7 +12,6 @@ const passportModel = require('../models/passportModel')
 const checklistModel = require("../models/checklistModel")
 const printedVisasModel = require('../models/printedVisasModel')
 const deletedVisasModel = require('../models/deletedVisasModel');
-const alsLib = require('../libraries/alsLib');
 
 
 module.exports = function(app) {
@@ -52,24 +51,12 @@ module.exports = function(app) {
         const data = await userModel.getUserSync({select: 'bin_to_uuid(u.uid) as uid, u.password, u.phone, u.sex, u.name, u.email, u.updated_at, s.sid' , filters: {'sid': sid}})
         try {
             if(data && data.length){
-                // Encrypt data body here
-                // const secret_key = alsLib.generateKey()
-                // const encrypt = alsLib.generatePublicKey(secret_key)
-                // const payload = alsLib.encryptPayload(secret_key, data)
-                // const body = {
-                //     'public_key_id': config.als.public_key_id,
-                //     'encrypt': encrypt,
-                //     'payload': payload
-                // }
-
-                // const sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': body })
-
-                // if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': body })){
-                //     if(sync_reaspone.data.sid){
-                //         sync_logs.profile = sync_reaspone.data.sid
-                //         fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
-                //     } 
-                // }
+                if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': body })){
+                    if(sync_reaspone.data.sid){
+                        sync_logs.profile = sync_reaspone.data.sid
+                        fs.writeFileSync('sync_logs', JSON.stringify(sync_logs))
+                    } 
+                }
 
             }
             return res.send({'sid': sync_logs.profile})

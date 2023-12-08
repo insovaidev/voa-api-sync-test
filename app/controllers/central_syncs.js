@@ -23,16 +23,6 @@ module.exports = function(app) {
 
     app.post('/central_syncs/profile', async (req, res) => {
         const body = req.body
-
-        
-        console.log(body)
-
-
-        
-        
-        return 
-
-
         if(body != null && body.data){
             try {
                 let sid = 0

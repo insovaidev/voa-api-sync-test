@@ -3,7 +3,7 @@
     "server": "nodemon index.js",
     "local_syncs": "nodemon local_syncs.js",
     "central_syncs": "nodemon central_syncs.js",
-    "dev": "concurrently \"npm:server\" \"npm:local_syncs\" \"npm:central_syncs\"",
+    "dev": "concurrently \"npm:server\" \"npm:local_syncs\"",
     "dist": "mkdir -p dist && cp -R node_modules app index.js ... dist",
     "start": "node dist/index.js",
     "git": "git add . && git commit -m 'updated' && git push"
