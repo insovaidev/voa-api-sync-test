@@ -53,16 +53,16 @@ module.exports = function(app) {
         try {
             if(data && data.length){
                 // Encrypt data body here
-                const secret_key = alsLib.generateKey()
-                const encrypt = alsLib.generatePublicKey(secret_key)
-                const payload = alsLib.encryptPayload(secret_key, data)
-                const body = {
-                    'public_key_id': config.als.public_key_id,
-                    'encrypt': encrypt,
-                    'payload': payload
-                }
+                // const secret_key = alsLib.generateKey()
+                // const encrypt = alsLib.generatePublicKey(secret_key)
+                // const payload = alsLib.encryptPayload(secret_key, data)
+                // const body = {
+                //     'public_key_id': config.als.public_key_id,
+                //     'encrypt': encrypt,
+                //     'payload': payload
+                // }
 
-                const sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': body })
+                // const sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': body })
 
                 // if(sync_reaspone = await axios.post(config.centralUrl+'central_syncs/profile', { 'data': body })){
                 //     if(sync_reaspone.data.sid){
