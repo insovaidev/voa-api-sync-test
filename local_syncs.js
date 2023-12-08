@@ -42,7 +42,7 @@ const deletedVisasModel = require('./app/models/deletedVisasModel');
 
 
 local_syncs.post('/local_syncs/users', async (req, res) => {    
-    console.log('Users')  
+    console.log('users')  
     const portCode = ['PHN'] // Port that can use this server.
     var sync_logs = {}
     if(result = await fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
@@ -50,6 +50,11 @@ local_syncs.post('/local_syncs/users', async (req, res) => {
     
     try {    
         const request = await axios.post(CENTRAL_SYNC_API+'central_syncs/users', {'sid': parseInt(sid), 'ports': portCode})         
+        
+        console.log(request)
+
+
+
         if(request && request.data != null && request.data.data) {
                 for(var i in request.data.data) {
                     var val = request.data.data[i]
@@ -57,9 +62,9 @@ local_syncs.post('/local_syncs/users', async (req, res) => {
                     delete val.sid
                     const user = await userModel.get({select: '*', filters: {'uid': val.uid}})
                     if(user) {
-                        await userModel.updateSync(request.data.data[i])
+                        await userModel.updateSync(val)
                     } else {
-                        await userModel.addSync(request.data.data[i])
+                        await userModel.addSync(val)
                     }
                 }
             }
@@ -72,6 +77,7 @@ local_syncs.post('/local_syncs/users', async (req, res) => {
 })
 
 local_syncs.post('/local_syncs/profile', async (req, res) => {
+    console.log('profile')  
     var sync_logs = {}
     if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
     var sid = sync_logs.profile != undefined ? sync_logs.profile : 0       
@@ -107,10 +113,10 @@ local_syncs.post('/local_syncs/ports', async (req, res) => {
                 delete val.sid
                 const port = await portModel.getOne({select: '*', filters: {'id': val.id}})
                 if(port) {
-                    await portModel.updateSync(request.data.data[i])
+                    await portModel.updateSync(val)
                 }
                 else {
-                    await portModel.addSync(request.data.data[i])
+                    await portModel.addSync(val)
                 }
             }
         }
@@ -137,9 +143,9 @@ local_syncs.post('/local_syncs/visa_types', async (req, res) => {
                 delete val.sid
                 const visaType = await visaTypeModel.getOne({select: '*', filters: {'id': val.id}})
                 if(visaType) {
-                    await visaTypeModel.updateSync(request.data.data[i])
+                    await visaTypeModel.updateSync(val)
                 } else {
-                    await visaTypeModel.addSync(request.data.data[i])
+                    await visaTypeModel.addSync(val)
                 }
             }
         }
@@ -165,9 +171,9 @@ local_syncs.post('/local_syncs/countries', async (req, res) => {
                 delete val.sid
                 const country = await countryModel.getOne({select: '*', filters: {'id': val.id}})
                 if(country) {
-                    await countryModel.updateSync(request.data.data[i])
+                    await countryModel.updateSync(val)
                 } else {
-                    await countryModel.addSync(request.data.data[i])
+                    await countryModel.addSync(val)
                 }
             }
         }
@@ -283,6 +289,7 @@ local_syncs.post('/local_syncs/visas', async (req, res) => {
 })
 
 local_syncs.post('/local_syncs/printed_visas', async (req, res) => {
+    console.log('printed')
     let sync_logs = {}
     if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
     let sid = sync_logs.printed_visas != undefined ? sync_logs.printed_visas : 0 
