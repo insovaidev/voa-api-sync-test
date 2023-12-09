@@ -5,6 +5,22 @@ const local_syncs = express()
 const cors = require('cors')
 require('dotenv').config()
 const PORT = 5001 
+const CENTRAL_SYNC_API = process.env.CENTRAL_SYNC_API
+
+const fs = require('fs')
+const config = require('./app/config/config')
+const axios = require('axios')
+const FormData = require('form-data');
+const activityLogModel = require("./app/models/activityLogModel")
+const portModel = require("./app/models/portModel")
+const userModel = require("./app/models/userModel")
+const visaModel = require("./app/models/visaModel")
+const visaTypeModel = require('./app/models/visaTypeModel')
+const countryModel = require('./app/models/countryModel')
+const passportModel = require('./app/models/passportModel')
+const checklistModel = require("./app/models/checklistModel")
+const printedVisasModel = require('./app/models/printedVisasModel')
+const deletedVisasModel = require('./app/models/deletedVisasModel')
 
 // Allow close domain
 local_syncs.use(cors())
@@ -19,28 +35,9 @@ local_syncs.use(bodyParser.urlencoded({ extended: true })) // for parsing applic
 local_syncs.use(express.static('public'))
 
 // Public Folder
-local_syncs.use('/tmp', express.static('tmp'))
-local_syncs.use('/pdf', express.static('pdf'))
-local_syncs.use('/xlsx', express.static('xlsx'))
 local_syncs.use('/uploads', express.static('uploads'))
 
-const CENTRAL_SYNC_API = process.env.CENTRAL_SYNC_API
-const fs = require('fs')
-const config = require('./app/config/config')
-const axios = require('axios')
-const FormData = require('form-data');
-const activityLogModel = require("./app/models/activityLogModel")
-const portModel = require("./app/models/portModel")
-const userModel = require("./app/models/userModel")
-const visaModel = require("./app/models/visaModel")
-const visaTypeModel = require('./app/models/visaTypeModel')
-const countryModel = require('./app/models/countryModel')
-const passportModel = require('./app/models/passportModel')
-const checklistModel = require("./app/models/checklistModel")
-const printedVisasModel = require('./app/models/printedVisasModel')
-const deletedVisasModel = require('./app/models/deletedVisasModel');
-
-
+// Users
 local_syncs.post('/local_syncs/users', async (req, res) => {    
     console.log('users')  
     const portCode = ['PHN'] // Port that can use this server.
@@ -71,6 +68,7 @@ local_syncs.post('/local_syncs/users', async (req, res) => {
     }
 })
 
+// Profiles
 local_syncs.post('/local_syncs/profile', async (req, res) => {
     console.log('profile')  
     var sync_logs = {}
@@ -93,6 +91,7 @@ local_syncs.post('/local_syncs/profile', async (req, res) => {
     }
 })
 
+// Ports
 local_syncs.post('/local_syncs/ports', async (req, res) => {
     var sync_logs = {}
     let request = null;
@@ -123,6 +122,7 @@ local_syncs.post('/local_syncs/ports', async (req, res) => {
     }
 })
 
+// Visa Types
 local_syncs.post('/local_syncs/visa_types', async (req, res) => {
     var sync_logs = {}
     var request = null
@@ -153,6 +153,7 @@ local_syncs.post('/local_syncs/visa_types', async (req, res) => {
     }
 })
 
+// Countries
 local_syncs.post('/local_syncs/countries', async (req, res) => {
     var sync_logs = {}
     if(result = fs.readFileSync('sync_logs')) sync_logs = JSON.parse(result)
@@ -180,6 +181,7 @@ local_syncs.post('/local_syncs/countries', async (req, res) => {
     }        
 })
 
+// Activity Logs
 local_syncs.post('/local_syncs/activity_logs', async (req, res) => {
     console.log('logs')
     let sync_logs = {}
@@ -201,6 +203,7 @@ local_syncs.post('/local_syncs/activity_logs', async (req, res) => {
     }
 })
 
+// Checklists
 local_syncs.post('/local_syncs/checklists', async (req, res) => {
     console.log('checklists')
     let sync_logs = {}
@@ -222,6 +225,7 @@ local_syncs.post('/local_syncs/checklists', async (req, res) => {
     }
 })
 
+// Passports
 local_syncs.post('/local_syncs/passports', async (req, res) => {
     console.log('passports')
     let sync_logs = {}
@@ -243,6 +247,7 @@ local_syncs.post('/local_syncs/passports', async (req, res) => {
     }
 })
 
+// Visas
 local_syncs.post('/local_syncs/visas', async (req, res) => {
     console.log('visas')
     let sync_logs = {}
@@ -283,6 +288,7 @@ local_syncs.post('/local_syncs/visas', async (req, res) => {
     // next()
 })
 
+// Printed Visas
 local_syncs.post('/local_syncs/printed_visas', async (req, res) => {
     console.log('printed')
     let sync_logs = {}
@@ -305,6 +311,7 @@ local_syncs.post('/local_syncs/printed_visas', async (req, res) => {
     }
 })
 
+// Deleted Visas
 local_syncs.post('/local_syncs/deleted_visas', async (req, res) => {
     console.log('delete visas')
     let sync_logs = {}

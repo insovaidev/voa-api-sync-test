@@ -6,6 +6,17 @@ const cors = require('cors')
 require('dotenv').config()
 const PORT = 3001
 
+const activityLogModel = require("./app/models/activityLogModel")
+const portModel = require("./app/models/portModel")
+const userModel = require("./app/models/userModel")
+const visaModel = require("./app/models/visaModel")
+const visaTypeModel = require('./app/models/visaTypeModel')
+const countryModel = require('./app/models/countryModel')
+const passportModel = require('./app/models/passportModel')
+const checklistModel = require("./app/models/checklistModel")
+const printedVisasModel = require('./app/models/printedVisasModel')
+const deletedVisasModel = require('./app/models/deletedVisasModel')
+
 // Allow close domain
 central_syncs.use(cors())
 
@@ -19,24 +30,7 @@ central_syncs.use(bodyParser.urlencoded({ extended: true })) // for parsing appl
 central_syncs.use(express.static('public'))
 
 // Public Folder
-central_syncs.use('/tmp', express.static('tmp'))
-central_syncs.use('/pdf', express.static('pdf'))
-central_syncs.use('/xlsx', express.static('xlsx'))
 central_syncs.use('/uploads', express.static('uploads'))
-
-// Configure 
-const config = require('./app/config/config')
-
-const activityLogModel = require("./app/models/activityLogModel")
-const portModel = require("./app/models/portModel")
-const userModel = require("./app/models/userModel")
-const visaModel = require("./app/models/visaModel")
-const visaTypeModel = require('./app/models/visaTypeModel')
-const countryModel = require('./app/models/countryModel')
-const passportModel = require('./app/models/passportModel')
-const checklistModel = require("./app/models/checklistModel")
-const printedVisasModel = require('./app/models/printedVisasModel')
-const deletedVisasModel = require('./app/models/deletedVisasModel')
 
 central_syncs.post('/central_syncs/users', async (req, res) => {
         var data = []
@@ -231,8 +225,6 @@ central_syncs.post('/central_syncs/deleted_visas', async (req, res) => {
     }
 })
 
-
-  
 central_syncs.listen(PORT, () => {
   console.log(`http://localhost:${PORT}`)
 })
